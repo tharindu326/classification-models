@@ -90,25 +90,21 @@ def plot_curves(metric, x, y, class_idx, curve_type):
 if __name__ == '__main__':
     model_name = 'resnet18'
     data_dir = 'data/test/'
-    model_path = 'checkpoints/resnet18_best.pth'
+    model_path = 'checkpoints/resnet50_best.pth'
     num_classes = 100
     batch_size = 32
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-    # Load test data
     test_loader = get_dataloader(data_dir=data_dir, batch_size=batch_size, shuffle=False)
 
     # Initialize and load model
     model = ResNetModel(model_name=model_name, num_classes=num_classes, pretrained=False)
     model.load_state_dict(torch.load(model_path, map_location=device))
 
-    # Evaluate the model
     cm, precision_class, recall_class, roc_auc = evaluate_model(model, test_loader, num_classes, device)
 
-    # Plot Confusion Matrix
     plot_confusion_matrix(cm, classes=[str(i) for i in range(num_classes)])
 
-    # Plot PR and ROC curves for each class
     for i in range(num_classes):
         # Precision-Recall Curve
         plot_curves('PR', recall_class[i], precision_class[i], class_idx=i, curve_type='PR')
