@@ -1,0 +1,6 @@
+# folders
+TLDataset/
+__pycache__/
+
+# files
+*.csv
