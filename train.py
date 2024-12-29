@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 from evaluate import plot_confusion_matrix
 import os
 import argparse
-
+from tqdm import tqdm
 
 """
 python train.py --model_name resnet50 --data_dir TLDataset/ALL/PKG-C-NMC2019 --num_classes 2 --num_epochs 50 --batch_size 32 --learning_rate 0.001 --momentum 0.9 --pretrained_path None
@@ -46,10 +46,12 @@ def train_model(model_name, data_dir, num_classes, num_epochs, batch_size, pretr
 
     # Training loop
     for epoch in range(num_epochs):
+        print(f"Epoch {epoch + 1}/{num_epochs}")
         model.train()
         running_loss = 0.0
 
-        for i, (inputs, labels) in enumerate(train_loader):
+        train_progress = tqdm(train_loader, desc="Training", leave=False)
+        for inputs, labels in train_progress:
             inputs, labels = inputs.to(device), labels.to(device)
             optimizer.zero_grad()
 
@@ -59,9 +61,7 @@ def train_model(model_name, data_dir, num_classes, num_epochs, batch_size, pretr
             optimizer.step()
 
             running_loss += loss.item()
-
-            if i % 10 == 9:
-                print(f'Epoch: {epoch + 1}/{num_epochs} | Step: {i + 1}/{len(train_loader)} | Loss: {loss.item():.4f}')
+            train_progress.set_postfix(loss=loss.item())
 
         avg_loss = running_loss / len(train_loader)
         train_losses.append(avg_loss)
@@ -73,8 +73,9 @@ def train_model(model_name, data_dir, num_classes, num_epochs, batch_size, pretr
         all_labels = []
         all_predictions = []
 
+        val_progress = tqdm(val_loader, desc="Validation", leave=False)
         with torch.no_grad():
-            for inputs, labels in val_loader:
+            for inputs, labels in val_progress:
                 inputs, labels = inputs.to(device), labels.to(device)
                 outputs = model(inputs)
                 loss = criterion(outputs, labels)
@@ -83,6 +84,7 @@ def train_model(model_name, data_dir, num_classes, num_epochs, batch_size, pretr
                 _, predicted = torch.max(outputs.data, 1)
                 all_labels.extend(labels.cpu().numpy())
                 all_predictions.extend(predicted.cpu().numpy())
+                val_progress.set_postfix(loss=loss.item())
 
         avg_val_loss = val_loss / len(val_loader)
         val_losses.append(avg_val_loss)
