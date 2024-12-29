@@ -11,11 +11,11 @@ import argparse
 from tqdm import tqdm
 
 """
-python train.py --model_name resnet50 --data_dir TLDataset/ALL/PKG-C-NMC2019 --num_classes 2 --num_epochs 50 --batch_size 32 --learning_rate 0.001 --momentum 0.9 --pretrained_path None
+python train.py --model_name resnet50 --data_dir TLDataset/ALL/PKG-C-NMC2019 --num_classes 2 --num_epochs 50 --batch_size 32 --learning_rate 0.001 --momentum 0.9 --pretrained_path None --checkpoint_path model_checkpoints/ALL
 """
 
-def train_model(model_name, data_dir, num_classes, num_epochs, batch_size, pretrained_path=None, learning_rate=0.001, momentum=0.9):
-    os.makedirs('checkpoints', exist_ok=True)
+def train_model(model_name, data_dir, num_classes, num_epochs, batch_size, pretrained_path=None, learning_rate=0.001, momentum=0.9, checkpoint_path='model_checkpoints'):
+    os.makedirs(checkpoint_path, exist_ok=True)
     # Track metrics
     train_losses, val_losses, precisions, recalls = [], [], [], []
     best_f1 = 0.0
@@ -101,12 +101,12 @@ def train_model(model_name, data_dir, num_classes, num_epochs, batch_size, pretr
         # Save best model based on F1 score
         if f1 > best_f1:
             best_f1 = f1
-            best_model_path = f'./checkpoints/{model_name}_best_epoch_{epoch}.pth'
+            best_model_path = os.path.join(checkpoint_path, f'{model_name}_best_epoch_{epoch}.pth')
             torch.save(model.state_dict(), best_model_path)
             print(f'Saved Best Model at epoch {epoch+1} with F1 score: {best_f1:.4f}')
 
         # Save the latest model
-        latest_model_path = f'./checkpoints/{model_name}_latest.pth'
+        latest_model_path = os.path.join(checkpoint_path, f'{model_name}_latest.pth')
         torch.save(model.state_dict(), latest_model_path)
 
     # Plot training and validation loss
@@ -117,7 +117,7 @@ def train_model(model_name, data_dir, num_classes, num_epochs, batch_size, pretr
     plt.xlabel('Epochs')
     plt.ylabel('Loss')
     plt.legend()
-    plt.savefig(f'{model_name}_loss_plot.png')
+    plt.savefig(os.path.join(checkpoint_path, f'{model_name}_loss_plot.png'))
     plt.close()
 
     # Plot precision and recall
@@ -128,7 +128,7 @@ def train_model(model_name, data_dir, num_classes, num_epochs, batch_size, pretr
     plt.xlabel('Epochs')
     plt.ylabel('Score')
     plt.legend()
-    plt.savefig(f'{model_name}_precision_recall_plot.png')
+    plt.savefig(os.path.join(checkpoint_path, f'{model_name}_precision_recall_plot.png'))
     plt.close()
 
     # Save Confusion Matrix
@@ -136,7 +136,7 @@ def train_model(model_name, data_dir, num_classes, num_epochs, batch_size, pretr
     plt.figure()
     plot_confusion_matrix(cm, classes=[str(i) for i in range(num_classes)])
     plt.title('Confusion Matrix')
-    plt.savefig(f'{model_name}_confusion_matrix.png')
+    plt.savefig(os.path.join(checkpoint_path, f'{model_name}_confusion_matrix.png'))
     plt.close()
 
     print('Finished Training')
@@ -145,6 +145,7 @@ def train_model(model_name, data_dir, num_classes, num_epochs, batch_size, pretr
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Train ResNet Model')
     parser.add_argument('--model_name', type=str, default='resnet50', help='Model name')
+    parser.add_argument('--checkpoint_path', type=str, required=True, help='Model name')
     parser.add_argument('--data_dir', type=str, required=True, help='Dataset directory')
     parser.add_argument('--num_classes', type=int, default=64, help='Number of classes')
     parser.add_argument('--num_epochs', type=int, default=20, help='Number of epochs')
@@ -155,4 +156,4 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    train_model(args.model_name, args.data_dir, args.num_classes, args.num_epochs, args.batch_size, args.pretrained_path, args.learning_rate, args.momentum)
+    train_model(args.model_name, args.data_dir, args.num_classes, args.num_epochs, args.batch_size, args.pretrained_path, args.learning_rate, args.momentum, args.checkpoint_path)

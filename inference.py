@@ -8,9 +8,9 @@ import os
 """
 USAGE:
 image directoey:
-python inference.py --model_name resnet50 --image_path TLDataset/ALL/PKG-C-NMC2019/C-NMC_test_prelim_phase_data --model_path checkpoints/resnet50_best.pth --num_classes 2 --image_save output_folder
+python inference.py --model_name resnet50 --image_path TLDataset/ALL/PKG-C-NMC2019/C-NMC_test_prelim_phase_data --model_path model_checkpoints/ALL/resnet50_best.pth --num_classes 2 --image_save output_folder
 single image:
-python inference.py --model_name resnet50 --image_path TLDataset/ALL/PKG-C-NMC2019/C-NMC_test_prelim_phase_data/test.png --model_path checkpoints/resnet50_best.pth --num_classes 2 --image_save out.png
+python inference.py --model_name resnet50 --image_path TLDataset/ALL/PKG-C-NMC2019/C-NMC_test_prelim_phase_data/test.png --model_path model_checkpoints/ALL/resnet50_best.pth --num_classes 2 --image_save out.png
 """
 
 def load_image(image_path, device):
