@@ -15,6 +15,7 @@ python train.py --model_name resnet50 --data_dir TLDataset/ALL/PKG-C-NMC2019 --n
 """
 
 def train_model(model_name, data_dir, num_classes, num_epochs, batch_size, pretrained_path=None, learning_rate=0.001, momentum=0.9):
+    os.makedirs('checkpoints', exist_ok=True)
     # Track metrics
     train_losses, val_losses, precisions, recalls = [], [], [], []
     best_f1 = 0.0
