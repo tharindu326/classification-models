@@ -5,6 +5,7 @@ from sklearn.metrics import confusion_matrix, precision_recall_curve, roc_curve,
 from sklearn.preprocessing import label_binarize
 from data_loader import get_dataloader
 from model import ResNetModel
+import argparse
 
 
 def evaluate_model(model, data_loader, num_classes, device):
@@ -88,24 +89,27 @@ def plot_curves(metric, x, y, class_idx, curve_type):
 
 
 if __name__ == '__main__':
-    model_name = 'resnet18'
-    data_dir = 'data/test/'
-    model_path = 'checkpoints/resnet50_best.pth'
-    num_classes = 100
-    batch_size = 32
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    parser = argparse.ArgumentParser(description='Evaluate ResNet Model')
+    parser.add_argument('--model_name', type=str, default='resnet18', help='Model name')
+    parser.add_argument('--data_dir', type=str, required=True, help='Dataset directory')
+    parser.add_argument('--model_path', type=str, required=True, help='Path to the trained model')
+    parser.add_argument('--num_classes', type=int, default=100, help='Number of classes')
+    parser.add_argument('--batch_size', type=int, default=32, help='Batch size')
 
-    test_loader = get_dataloader(data_dir=data_dir, batch_size=batch_size, shuffle=False)
+    args = parser.parse_args()
+
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    test_loader = get_dataloader(data_dir=args.data_dir, batch_size=args.batch_size, shuffle=False)
 
     # Initialize and load model
-    model = ResNetModel(model_name=model_name, num_classes=num_classes, pretrained=False)
-    model.load_state_dict(torch.load(model_path, map_location=device))
+    model = ResNetModel(model_name=args.model_name, num_classes=args.num_classes, pretrained=False)
+    model.load_state_dict(torch.load(args.model_path, map_location=device))
 
-    cm, precision_class, recall_class, roc_auc = evaluate_model(model, test_loader, num_classes, device)
+    cm, precision_class, recall_class, roc_auc = evaluate_model(model, test_loader, args.num_classes, device)
 
-    plot_confusion_matrix(cm, classes=[str(i) for i in range(num_classes)])
+    plot_confusion_matrix(cm, classes=[str(i) for i in range(args.num_classes)])
 
-    for i in range(num_classes):
+    for i in range(args.num_classes):
         # Precision-Recall Curve
         plot_curves('PR', recall_class[i], precision_class[i], class_idx=i, curve_type='PR')
         # ROC Curve
