@@ -31,7 +31,7 @@ def train_model(model_name, data_dir, num_classes, num_epochs, batch_size, pretr
     print(f"Validation Data: {len(val_loader.dataset)} samples")
 
     # Initialize model
-    if pretrained_path:
+    if pretrained_path is not None:
         model = ResNetModel(model_name=model_name, num_classes=num_classes, pretrained=True)
         model.load_state_dict(torch.load(pretrained_path))  # Load pretrained weights
     else:
