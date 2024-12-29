@@ -7,7 +7,12 @@ from sklearn.metrics import precision_score, recall_score, confusion_matrix, f1_
 import matplotlib.pyplot as plt
 from evaluate import plot_confusion_matrix
 import os
+import argparse
 
+
+"""
+python train.py --model_name resnet50 --data_dir TLDataset/ALL/PKG-C-NMC2019 --num_classes 2 --num_epochs 50 --batch_size 32 --learning_rate 0.001 --momentum 0.9 --pretrained_path None
+"""
 
 def train_model(model_name, data_dir, num_classes, num_epochs, batch_size, pretrained_path=None, learning_rate=0.001, momentum=0.9):
     # Track metrics
@@ -135,13 +140,16 @@ def train_model(model_name, data_dir, num_classes, num_epochs, batch_size, pretr
 
 
 if __name__ == '__main__':
-    model_name = 'resnet50'
-    data_dir = 'TLDataset/ALL/PKG-C-NMC2019'
-    num_classes = 64
-    num_epochs = 20
-    batch_size = 32
-    momentum = 0.9
-    learning_rate = 0.001
-    pretrained_path = None
+    parser = argparse.ArgumentParser(description='Train ResNet Model')
+    parser.add_argument('--model_name', type=str, default='resnet50', help='Model name')
+    parser.add_argument('--data_dir', type=str, required=True, help='Dataset directory')
+    parser.add_argument('--num_classes', type=int, default=64, help='Number of classes')
+    parser.add_argument('--num_epochs', type=int, default=20, help='Number of epochs')
+    parser.add_argument('--batch_size', type=int, default=32, help='Batch size')
+    parser.add_argument('--learning_rate', type=float, default=0.001, help='Learning rate')
+    parser.add_argument('--momentum', type=float, default=0.9, help='Momentum')
+    parser.add_argument('--pretrained_path', type=str, default=None, help='Path to pretrained model')
 
-    train_model(model_name, data_dir, num_classes, num_epochs, batch_size, pretrained_path, learning_rate, momentum)
+    args = parser.parse_args()
+
+    train_model(args.model_name, args.data_dir, args.num_classes, args.num_epochs, args.batch_size, args.pretrained_path, args.learning_rate, args.momentum)
