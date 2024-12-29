@@ -49,6 +49,12 @@ def save_image_with_label(image_path, label, confidence, save_path):
     image.save(save_path)
 
 
+def is_valid_image(filename):
+    """Check if the file has a valid image extension."""
+    valid_extensions = {'.jpg', '.jpeg', '.png', '.ppm', '.bmp', '.pgm', '.tif', '.tiff', '.webp'}
+    return os.path.splitext(filename)[1].lower() in valid_extensions
+
+
 if __name__ == '__main__':
     # Parse command-line arguments
     parser = argparse.ArgumentParser(description='Inference with a trained model')
@@ -68,21 +74,26 @@ if __name__ == '__main__':
     model.load_state_dict(torch.load(args.model_path, map_location=device))  # Load model weights
     model.to(device)
 
+    # Class names mapping
+    class_names = ['CANCER', 'NO_CANCER']
+
     # Perform inference
     if os.path.isdir(args.image_path):
         for img_name in os.listdir(args.image_path):
             img_path = os.path.join(args.image_path, img_name)
-            if os.path.isfile(img_path):
+            if os.path.isfile(img_path) and is_valid_image(img_name):
                 predicted_class, confidence = predict(model, img_path, device)
-                print(f'{img_name}: Predicted class: {predicted_class}, Confidence: {confidence:.2f}')
+                class_label = class_names[predicted_class]
+                print(f'{img_name}: Predicted class: {class_label} ({predicted_class}), Confidence: {confidence:.2f}')
                 if args.image_save:
                     os.makedirs(args.image_save, exist_ok=True)
                     save_path = os.path.join(args.image_save, img_name)
-                    save_image_with_label(img_path, predicted_class, confidence, save_path)
-    elif os.path.isfile(args.image_path):
+                    save_image_with_label(img_path, f"{class_label} ({predicted_class})", confidence, save_path)
+    elif os.path.isfile(args.image_path) and is_valid_image(args.image_path):
         predicted_class, confidence = predict(model, args.image_path, device)
-        print(f'Predicted class: {predicted_class}, Confidence: {confidence:.2f}')
+        class_label = class_names[predicted_class]
+        print(f'Predicted class: {class_label} ({predicted_class}), Confidence: {confidence:.2f}')
         if args.image_save:
-            save_image_with_label(args.image_path, predicted_class, confidence, args.image_save)
+            save_image_with_label(args.image_path, f"{class_label} ({predicted_class})", confidence, args.image_save)
     else:
-        print("Invalid image path.")
+        print("Invalid image path or unsupported file format.")
