@@ -7,6 +7,9 @@ from data_loader import get_dataloader
 from model import ResNetModel
 import argparse
 
+"""
+python evaluate.py --model_name resnet50 --data_dir TLDataset/ALL/PKG-C-NMC2019/C-NMC_test_prelim_phase_data --model_path checkpoints/resnet50_best.pth --num_classes 2 --batch_size 32
+"""
 
 def evaluate_model(model, data_loader, num_classes, device):
     """Evaluate the model and compute performance metrics."""

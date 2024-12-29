@@ -46,7 +46,7 @@ def train_model(model_name, data_dir, num_classes, num_epochs, batch_size, pretr
 
     # Training loop
     for epoch in range(num_epochs):
-        print(f"Epoch {epoch + 1}/{num_epochs}")
+        # print(f"Epoch {epoch + 1}/{num_epochs}")
         model.train()
         running_loss = 0.0
 
@@ -101,7 +101,7 @@ def train_model(model_name, data_dir, num_classes, num_epochs, batch_size, pretr
         # Save best model based on F1 score
         if f1 > best_f1:
             best_f1 = f1
-            best_model_path = f'./checkpoints/{model_name}_best.pth'
+            best_model_path = f'./checkpoints/{model_name}_best_epoch_{epoch}.pth'
             torch.save(model.state_dict(), best_model_path)
             print(f'Saved Best Model at epoch {epoch+1} with F1 score: {best_f1:.4f}')
 
