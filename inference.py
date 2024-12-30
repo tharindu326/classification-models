@@ -4,6 +4,8 @@ from torchvision import transforms
 from PIL import Image, ImageDraw, ImageFont
 from model import ResNetModel
 import os
+import json
+
 
 """
 USAGE:
@@ -76,19 +78,24 @@ if __name__ == '__main__':
 
     # Class names mapping
     class_names = ['CANCER', 'NO_CANCER']
-
     # Perform inference
     if os.path.isdir(args.image_path):
+        total_call_count = {}
         for img_name in os.listdir(args.image_path):
             img_path = os.path.join(args.image_path, img_name)
             if os.path.isfile(img_path) and is_valid_image(img_name):
                 predicted_class, confidence = predict(model, img_path, device)
+                if predicted_class in total_call_count:
+                    total_call_count[predicted_class] = 1
+                else:
+                    total_call_count[predicted_class] = total_call_count[predicted_class] + 1
                 class_label = class_names[predicted_class]
                 print(f'{img_name}: Predicted class: {class_label} ({predicted_class}), Confidence: {confidence:.2f}')
                 if args.image_save:
                     os.makedirs(args.image_save, exist_ok=True)
                     save_path = os.path.join(args.image_save, img_name)
                     save_image_with_label(img_path, f"{class_label} ({predicted_class})", confidence, save_path)
+        json.dumps(total_call_count, indent=4)
     elif os.path.isfile(args.image_path) and is_valid_image(args.image_path):
         predicted_class, confidence = predict(model, args.image_path, device)
         class_label = class_names[predicted_class]
