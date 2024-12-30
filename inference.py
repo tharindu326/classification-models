@@ -86,9 +86,9 @@ if __name__ == '__main__':
             if os.path.isfile(img_path) and is_valid_image(img_name):
                 predicted_class, confidence = predict(model, img_path, device)
                 if predicted_class in total_call_count:
-                    total_call_count[predicted_class] = 1
-                else:
                     total_call_count[predicted_class] = total_call_count[predicted_class] + 1
+                else:
+                    total_call_count[predicted_class] = 1
                 class_label = class_names[predicted_class]
                 print(f'{img_name}: Predicted class: {class_label} ({predicted_class}), Confidence: {confidence:.2f}')
                 if args.image_save:
